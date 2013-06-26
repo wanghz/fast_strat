@@ -9,17 +9,20 @@ fast_theme <- chartTheme(up.col='#065a85',dn.col='#b9571c',
 							main.col="green",
 							fill='#9f9f9f')
 # chartTheme('white')
-POS 	<- function(X){return(X[,"posqty"])}
-BAL 	<- function(X){return(X[,"strat_balance"])}
 CUM 	<- function(X){return(cumprod(1+X[,"strat_ret"]))}
 Line 	<- function(x, l=1){return(reclass(rep(l,nrow(x)),x))}
-Orders 	<- function(X, price=Cl){return(abs(sign(zero_na(X[,"orders"]))*price(X)))}
-addPOS 	<- newTA(POS, lwd=2, legend='position Q')
-addBAL 	<- newTA(BAL, lwd=2, col='#86b825',legend='balance',yrange=c(9950,12000))
 addCUM 	<- newTA(CUM, lwd=2, col='#00b134',legend='performance')
 addLine <- newTA(Line, l=1, lwd=1, col='#ff0019',legend.name='',on=NA)
 addVolatility <- newTA(volatility, preFUN=Cl, col=4, lwd=2)
-addOrders <- newTA(Orders, type='b', col="red", pch=9, on=1)
+# addLines(x, h, v, on=1)
 
-fast_plot <- function(X, TA=list("addOrders()", "addPOS()", "addBAL()"), theme=fast_theme, ...){
+Orders 	<- function(X, price=Cl){return(abs(sign(zero_na(X[,"orders"]))*price(X)))}
+BAL 	<- function(X){return(X[,"windex"])}
+POS 	<- function(X){return(X[,"qty"])}
+
+addOrders <- newTA(Orders, type='b', col="red", pch=9, on=1)
+addBAL 	<- newTA(BAL, lwd=2, col='#86b825')
+addPOS 	<- newTA(POS, lwd=2, legend='position Q')
+
+fast_plot <- function(X, TA=list('addOrders()','addBAL()','addPOS()'), theme=fast_theme, ...){
 	chartSeries(x=X, TA=TA, theme=theme, ...)}

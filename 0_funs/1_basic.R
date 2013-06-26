@@ -28,29 +28,17 @@ dbase <- function(dir=0, which, type=c("RDS","xts","csv"), main=db_fol, sep=",",
 ########################## BASIC ################################################
 #################################################################################
 na_zero <- function(x){
-	x[is.na(x)]<-0;
+	x[is.na(x)] <- 0;
 	return(x)}
 
 inf_zero <- function(x){
-	x[x== Inf]<-0;
-	x[x==-Inf]<-0
+	x[x== Inf] <- 0;
+	x[x==-Inf] <- 0
 	return(x)}
 	
 zero_na <- function(x){
 	x[x==0]<-NA;
 	return(x)}
-
-"%inside%" <- function(a, range){
-    if(length(range)!=2){stop("not a range")}
-    lower = min(range); 
-    upper = max(range);
-    (lower<=a & a<=upper)}
-
-
-########################## TAX ##################################################
-#################################################################################
-
-tax_pip <- function(qty, pips=2) {return(abs(qty) * -0.0001 * pips/2)}
 
 
 

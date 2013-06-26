@@ -8,7 +8,11 @@ port_new <- function(data){
 
 order_add <- function(qty, time, price){
 	new_qty <- get("mkdata",envir=.GlobalEnv)[(time-1),"posqty"] + qty
-	if (new_qty!=0) {pos <<- as.numeric(new_qty)} else{pos <<- 0}
+	if (new_qty==0) {
+		pos <<- 0
+	} else{
+		pos <<- as.numeric(new_qty)
+	}
 	mkdata[time,"orders"] <<- qty
 	mkdata[time,"posqty"] <<- new_qty
 	long <- sign(qty)==1
@@ -18,22 +22,30 @@ aggreg <- function(time){
 	if(pos!=0 && as.numeric(mkdata[time,"posqty"])==0){
 		mkdata[time,"posqty"] <<- mkdata[(time-1),"posqty"]}}
 
+
 finalize <- function(mkdata, X, pricefun = c("open","close"), init=1e4, spread=2){
-	pricefun = match.arg(pricefun)
-	n <- nrow(mkdata)
+	pricefun 	<- match.arg(pricefun)
+	n 			<- nrow(mkdata)
 	if(pricefun=="open"){
-		mkdata=lag(mkdata)
-		pricecol <- Op(X)
+		mkdata 		<- lag(mkdata)
+		pricecol 	<- Op(X)
 	} else if(pricefun=="close"){
-		pricecol <- Cl(X)}
+		pricecol 	<- Cl(X)
+	}
+	
 	mkdata$strat_pl <- (pricecol[2:n,]-as.numeric(pricecol[1:(n-1),]))*as.numeric(mkdata[1:(n-1),"posqty"])
 	pl_tax			<- (mkdata$strat_pl-abs(as.numeric(mkdata$orders * spread*0.0001/2)))
 	mkdata$strat_pl_tax 	<- pl_tax
-	mkdata[1:3,] 	<- 0
+	mkdata[1:3, ] 	<- 0
 	mkdata$strat_balance 	<- cumsum(mkdata$strat_pl_tax)+init
-	if(pricefun=="open"){mkdata	<- lag(mkdata)}
-	mkdata$strat_ret <- ROC(mkdata$strat_balance,type="discrete")
-	augmented 		<- merge(X,mkdata)
-	return(augmented)}
+
+	if(pricefun=="open"){
+		mkdata	<- lag(mkdata)
+	}
+
+	mkdata$strat_ret 	<- ROC(mkdata$strat_balance,type="discrete")
+	augmented 			<- merge(X,mkdata)
+	return(augmented)
+}
 
 

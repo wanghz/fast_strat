@@ -1,65 +1,43 @@
-########################## ESSENTIAL INDICATORS #################################
+########################## SIGNALS ##############################################
 #################################################################################
 # ge      <- function(a, b){ as.numeric(a)  > as.numeric(b) }
 # le      <- function(a, b){ as.numeric(a)  < as.numeric(b) }
 # geq     <- function(a, b){ as.numeric(a) >= as.numeric(b) }
 # leq     <- function(a, b){ as.numeric(a) <= as.numeric(b) }
 
-lt_than <- function(x, cl){
-	x 	<- try.xts(x, error = as.matrix)
-	res <- as.numeric(x)
-	res <- sapply(res,function(x,const=cl){(const>x)})
-	reclass(res, x)}
+# seriesIncr(x, thresh=0, diff.=1L)
+# seriesDecr(x, thresh=0, diff.=1L)
 
-gt_than <- function(x, cg){
-	x 	<- try.xts(x, error = as.matrix)
-	res <- as.numeric(x)
-	res <- sapply(res,function(x, const=cg){(const<x)})
-	reclass(res, x)}
+#### TIME #################################
+###########################################
+# trading_day <- function(x, days=c(2,3,4,5,6)){
+# 	# 1-sunday
+# 	x 		<- try.xts(x, error = as.matrix)
+# 	time 	<- index(x)
+# 	weekd 	<- lubridate::wday(time)
+# 	tday 	<- as.numeric(sapply(weekd,function(x){any(x==days)}))
+# 	reclass(tday, x)}
 
-in_range <- function(x, l, h){
-	x 	<- try.xts(x, error = as.matrix)
-	res <- as.numeric(x)
-	res <- sapply(res,function(x,low=l,high=h){(low<x && x<high)})
-	reclass(res, x)}
+# trading_time <- function(x, range="0800/1400"){
+# 	is.within 	<- function(x){
+# 		value 	<- hour(x)*60+minute(x)
+# 		(value > range[1] && value < range[2])}
+# 	split 	<- as.numeric(strsplit(range,"/")[[1]])
+# 	range 	<- (split%/%100)*60+(split%%100)
+# 	x 		<- try.xts(x, error = as.matrix)
+# 	time 	<- index(x)
+# 	ttime 	<- as.numeric(sapply(time,is.within))
+# 	reclass(tday, x)}
 
-cross_point <- function(a, b){	# 1 if a crosses b from below, -1 if from above
-	cont_signal <- (a > b)
-	cont_signal[is.na(cont_signal)] = FALSE
-	funia 	<- function(x){
-			if(as.numeric(x[2]) & as.numeric(!x[1])) 1 else if(as.numeric(!x[2]) & as.numeric(x[1])) -1 else 0 }	
-	rollapply(cont_signal, 2, funia)}
-
-########################## INDICATORS ###########################################
-#################################################################################
-trading_day <- function(x, days=c(2,3,4,5,6)){
-	# 1-sunday
-	x 		<- try.xts(x, error = as.matrix)
-	time 	<- index(x)
-	weekd 	<- lubridate::wday(time)
-	tday 	<- as.numeric(sapply(weekd,function(x){any(x==days)}))
-	reclass(tday, x)}
-
-trading_time <- function(x, range="0800/1400"){
-	is.within 	<- function(x){
-		value 	<- hour(x)*60+minute(x)
-		(value > range[1] && value < range[2])}
-	split 	<- as.numeric(strsplit(range,"/")[[1]])
-	range 	<- (split%/%100)*60+(split%%100)
-	x 		<- try.xts(x, error = as.matrix)
-	time 	<- index(x)
-	ttime 	<- as.numeric(sapply(time,is.within))}
 
 ########################## INDICATORS ###########################################
 #################################################################################
-roc <- function (x, nn = 1, na = TRUE){
-    x <- try.xts(x, error = as.matrix)
-    roc <- diff(log(x), nn, na.pad = na)
+# runSum, runMin, runMax, runMean, runMedian, runCov, runVar, runSD, runMAD
+# system.time(replicate(100,ROC(x)))
+roc <- function (x, n = 1, na = TRUE){
+    x 	<- try.xts(x, error = as.matrix)
+    roc <- diff(log(x), n, na.pad = na)
     reclass(roc, x)}
-
-rocn <- function (x, nnn = 1){
-    rocn <- lag(roc(x),nnn)
-    reclass(rocn, x)}
 
 RS <- function(x, n=10){
 	x <- OHLC(x)
@@ -73,9 +51,9 @@ RS <- function(x, n=10){
 	return(RS)}
 
 ddown <- function(x){
-	Return.cumulative = cumprod(1 + x)
-	maxCumulativeReturn = cummax(c(1, Return.cumulative))[-1]
-	drawdown = Return.cumulative/maxCumulativeReturn - 1
+	ret.cum 	<- cumprod(1 + x)
+	max.cum.ret <- cummax(c(1, ret.cum))[-1]
+	drawdown 	<- ret.cum/max.cum.ret - 1
 	min(drawdown)}
 
 ########################## FILTERS ##############################################
